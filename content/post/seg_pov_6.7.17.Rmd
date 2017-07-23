@@ -1,0 +1,105 @@
+---
+title: Racial Segregation and Poverty in Philadelphia
+author: Joe Ciesielski
+date: '2017-06-07'
+tags:
+  - Philadelphia
+  - Philly
+  - poverty
+  - r
+  - segregation
+output: html_document
+coverImage: /img/seg_pov_map_cover.png
+thumbnailImage: /img/seg_pov_map_cover.png
+thumbnailImagePosition: 'left'
+autoThumbnailImage: false
+
+---
+
+```{r, include=FALSE}
+
+knitr::opts_chunk$set(fig.align = 'center', fig.width = 6, fig.asp = 0.618)
+
+library('knitr')
+
+setwd('../..')
+
+source('code/racially_segregated_housing.R')
+
+```
+
+Philadelphia has consistently been identifed as [one of][1] the [most][2] [segregated][3] cities in the country. Once this fact is stated, the analysis usually stops. We're left to infer how living in communities which are racially segregated impacts the lives of residents. Here I try to explore this topic. 
+
+This is partially motivated by a conference I went to a few months ago. The presenters were discussing the ways in which historical, intentional segregation has influenced opportunities for subsequent generations. Inequities that we see today, racial inequities in particular, can largely be tied back to policies which ensured that people of color weren't permitted to live in certain neighborhoods. 
+
+There seemed to be a lot of truth in this idea so I wanted to look into it futher. Since we know that Philly is a pretty segregated city, and the poverty rate is also one of the worst among large cities, I wanted to look to see how these things were connected. Are segregated communities of color experiencing higher rates of poverty? 
+
+## **Lots** of people live in segregated neighborhoods
+
+First we have to get a handle on how segregated Philly actually is. Here, using data from the American Community Survey, I define racial segregation as census tracts in which 80% or more of residents are one race. There are other [defintions,][4] but this one is the most straightforward for analyazing differences among neighborhoods within a city.  
+
+The map below shows those segregated tracts. Overall **44%** of Philadelphians live in segregated census tracts under this definition - a pretty staggering number. 
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, width = 8}
+
+map
+
+```
+
+A few things stick out a first. There are two large swaths of the city in North and West/Soutwest where more the 80% of the residents are black. There are more areas of the city, but fewer census tracts, that are primarily white. These include the Northeast, Port Richmond, Northwest, parts of center city, and parts of South Philly including Girard Estates. Only three census tracts are segregated with primiarly Hispanic residents. (I stick with the race/ethncity breakdowns used by the ACS here.)
+
+The chart below shows what percent of residents are the same race within each census tract. Each dot is a census tract and the color shows the race of the plurality of residents within that tract. The overall pattern trends upward; that is, as you get to higher levels of segregation, more census tracts start to fall in to those buckets. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+seg_dot +
+  theme(text = element_text(size = 10))
+
+```
+
+There are actually more tracts that with a plurality of white residents (180) compared to black residents (171) despite the fact that there are far more segregated tracts with primarly black residents (98) compared to segregated tracts with primarily white residents (68). White residents are more spread out across different neighborhoods and black residents are clustered in a smaller number of neighborhoods. White residents are more likely to live in diverse neighborhoods than black residents and those neighborhoods are spread across more parts of the city. 
+
+Ok, so we've established pretty clearly: Philly is real segregated. How does segreation relate to poverty? 
+
+## Segregation and poverty are positively associated for black and Hispanic neighborhoods; negatively for white and Asian neighborhoods
+
+The chart below shows the relationship between the percent of residents of each race and the poverty rate for each census tract. It's pretty clear that's theres a strong relationship between racial segregation and poverty, but that the effect is different in terms of direction and strength for each race. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+seg_pov
+
+```
+
+The more white or Asian residents a census tract has, the lower its poverty rate. The more black or Hispanic residents, the higher the poverty rate. Not altogether suprising given what one might expect, but further inspection is required.
+
+The relationship between percent of white residents and poverty is actually the strongest. About 33% of the variation in poverty in each census tract can be explained by the percentage of white residents. Poverty actually has less strong relationships with the percent of black and Hispanic residents, where racial make-up explains 19% and 16% of the change in poverty rate respectively. 
+
+The reason the relationships are somewhat weaker for Hispanic and Asians here is that there are so many tracts have no Hispanic or Asian residents; very few tracts have no black or white residents. If you look at the six tracts that are more than 75% Hispanic, all have a poverty rate over 50% - astonishingly high. 
+
+If we couple this with some of what we've explored above, we see that: 
+
+* more parts of the city are primarily white while segreation for black residents is isolated to particular parts of the city; 
+* white residents tend to live in more diverse neighborhoods; 
+* the percentage of white residents is a strong predictor of a (low) poverty rate of a neighborhood.
+
+We'd need to dig deeper into the history and specifics to examine the extent to which these outcomes are tied to particular, intentional policy decisions; however, there's strong evidence here that the effects of historical segregation have a real impact on the decisions and opportunities experienced by residents. 
+
+## The solutions to segregation are less clear
+
+This analysis helps to shed some light on the issue of segregation and the impact on communities. But how we break these cycles is a much harder question. There are few examples of [intentional mixed-income communities][5], but these take lots of work and political will and obviously are focused on income levels rather than racial integration. School integration is another option but Philadelphia seems to be going the opposite direction by focusing on parental 'choice,' which has only led to increased segregation. (This latter issue is one that I hope to return to later.) 
+
+It's a hard thing to get handle on because, while segregated residential communities may have been a root cause of many of the social issues we experience today, simply making people that look different neighbors is unlikley to solve them. These structures have been so ingrained in social fabric, one thing will not solve it. 
+
+However, I do think that it will be hard to make progress on any of those other issues unless we have a common understanding of the ways in which segregation has impacted them. By bringing this one issue to the center of the dialogue, it can serve as a common ground from which to build those other solutions. Perhaps it's naive to think that something like segregation can galvanize broad constituencies. But I do think it's necessary and more information can only help.
+
+[1]: https://billypenn.com/2015/09/14/a-tale-of-two-philadelphias-census-data-reveals-income-inequality-around-the-citys-most-segregated-neighborhoods/
+
+[2]: https://fivethirtyeight.com/features/the-most-diverse-cities-are-often-the-most-segregated/ 
+
+[3]: http://www.censusscope.org/us/print_rank_dissimilarity_white_black.html 
+
+[4]: https://www.manhattan-institute.org/pdf/cr_66.pdf 
+
+[5]: http://www.lcis.com.tw/paper_store/paper_store/412292-effects-from-living-2015115172956533.pdf 

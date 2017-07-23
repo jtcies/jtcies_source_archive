@@ -1,0 +1,43 @@
+GEO.id,Id
+GEO.id2,Id2
+GEO.display-label,Geography
+HD01_VD01,Estimate; Total:
+HD02_VD01,Margin of Error; Total:
+HD01_VD03,Estimate; Total: - Below 100 percent of the poverty level
+HD02_VD03,Margin of Error; Total: - Below 100 percent of the poverty level
+HD01_VD04,Estimate; Total: - 100 to 149 percent of the poverty level
+HD02_VD04,Margin of Error; Total: - 100 to 149 percent of the poverty level
+HD01_VD05,Estimate; Total: - At or above 150 percent of the poverty level
+HD02_VD05,Margin of Error; Total: - At or above 150 percent of the poverty level
+HD01_VD06,Estimate; Total: - Born in state of residence:
+HD02_VD06,Margin of Error; Total: - Born in state of residence:
+HD01_VD07,Estimate; Total: - Born in state of residence: - Below 100 percent of the poverty level
+HD02_VD07,Margin of Error; Total: - Born in state of residence: - Below 100 percent of the poverty level
+HD01_VD08,Estimate; Total: - Born in state of residence: - 100 to 149 percent of the poverty level
+HD02_VD08,Margin of Error; Total: - Born in state of residence: - 100 to 149 percent of the poverty level
+HD01_VD09,Estimate; Total: - Born in state of residence: - At or above 150 percent of the poverty level
+HD02_VD09,Margin of Error; Total: - Born in state of residence: - At or above 150 percent of the poverty level
+HD01_VD10,Estimate; Total: - Born in other state in the United States:
+HD02_VD10,Margin of Error; Total: - Born in other state in the United States:
+HD01_VD11,Estimate; Total: - Born in other state in the United States: - Below 100 percent of the poverty level
+HD02_VD11,Margin of Error; Total: - Born in other state in the United States: - Below 100 percent of the poverty level
+HD01_VD12,Estimate; Total: - Born in other state in the United States: - 100 to 149 percent of the poverty level
+HD02_VD12,Margin of Error; Total: - Born in other state in the United States: - 100 to 149 percent of the poverty level
+HD01_VD13,Estimate; Total: - Born in other state in the United States: - At or above 150 percent of the poverty level
+HD02_VD13,Margin of Error; Total: - Born in other state in the United States: - At or above 150 percent of the poverty level
+HD01_VD14,Estimate; Total: - Native; born outside the United States:
+HD02_VD14,Margin of Error; Total: - Native; born outside the United States:
+HD01_VD15,Estimate; Total: - Native; born outside the United States: - Below 100 percent of the poverty level
+HD02_VD15,Margin of Error; Total: - Native; born outside the United States: - Below 100 percent of the poverty level
+HD01_VD16,Estimate; Total: - Native; born outside the United States: - 100 to 149 percent of the poverty level
+HD02_VD16,Margin of Error; Total: - Native; born outside the United States: - 100 to 149 percent of the poverty level
+HD01_VD17,Estimate; Total: - Native; born outside the United States: - At or above 150 percent of the poverty level
+HD02_VD17,Margin of Error; Total: - Native; born outside the United States: - At or above 150 percent of the poverty level
+HD01_VD18,Estimate; Total: - Foreign born:
+HD02_VD18,Margin of Error; Total: - Foreign born:
+HD01_VD19,Estimate; Total: - Foreign born: - Below 100 percent of the poverty level
+HD02_VD19,Margin of Error; Total: - Foreign born: - Below 100 percent of the poverty level
+HD01_VD20,Estimate; Total: - Foreign born: - 100 to 149 percent of the poverty level
+HD02_VD20,Margin of Error; Total: - Foreign born: - 100 to 149 percent of the poverty level
+HD01_VD21,Estimate; Total: - Foreign born: - At or above 150 percent of the poverty level
+HD02_VD21,Margin of Error; Total: - Foreign born: - At or above 150 percent of the poverty level
