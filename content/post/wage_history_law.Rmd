@@ -6,7 +6,6 @@ output: html_document
 tags:
   - Philadelphia
   - equity
-draft: true
 thumbnailImage: http://knowledge.wharton.upenn.edu/wp-content/uploads/2015/06/compensation.jpg
 thumbnailImagePosition: 'left'
 
@@ -15,46 +14,78 @@ thumbnailImagePosition: 'left'
 ```{r setup, include = FALSE}
 
 knitr::opts_chunk$set(fig.align = 'center', fig.width = 6, fig.asp = 0.618)
+
 library('tidyverse')
+library('forcats')
 
-
+source('../../code/jtc_theme.R')
 
 ```
 
 ![Does barring employers from asking about salary history reduce the wage gap? ][header-image]
 
-In January, Philadelphia became the first city to implement a ban on employers asking job candidates about their salary history when Mayor Kenney signed the ban into law. The goal of the law is to increase equity: by not allowing employers to ask about salary history, they won't be able to continue to 
+In January, Mayor Kenney signed into [law][1] an oridenence which prevents employers from asking about an applicants wage history, making Philadelphia the first city to put such a law into effect. The goal of the law is to increase equity: certain groups, particularly women, get paid less on average. By not letting employers ask how much a person used to (or is currently) making, you remove a key factor in why those groups continue to get paid less, putting everyone on a more even playing field. 
 
-The law makes a lot of sense in theory. And to his credit, Mayor Kenney is trying to make it his mark as a progressive, perhaps one of the most progressive mayor's in the country. This law and the soda tax have received a lot of national attention. Other cities such as New York and San Fransisco appear to be following suit with both similar progressive initatives, and it's refreshing to see Philadelphia leading the charge of these issues. 
+The law makes a lot of sense in theory. And to his credit, Mayor Kenney is trying to make it his mark as a progressive, perhaps one of the most progressive mayor's in the country. This law and the soda tax have received a lot of national attention. Other cities such as New York and San Fransisco appear to be following suit with both similar progressive initatives, and it's refreshing to see Philadelphia leading the charge on these issues. 
 
-All seems good, right? But this law could potentially backfire and harm the people it was intended to help. There's an analogous policy that may shed some light. 
+So all seems good, right? Not exactly. This law could potentially backfire and harm the people it was intended to help. There's an analogous policy that may shed some light. 
 
 ## The BTB comparison
 
-The 'Ban the Box' (BTB) policy intended to improve the employment prospects of ex-offenders. The idea behind BTB is similar: employers won't be allowed to ask someone's criminal record and theorefore won't be able to discriminate against ex-offenders. BTB is essentially the spiritual prescuror to the wage history ban, and it also made a lot of sense in theory. 
+The 'Ban the Box' (BTB) policy intends to improve the employment prospects of ex-offenders. The idea behind BTB is similar: employers can't be allowed to ask someone's criminal record and theorefore won't be able to discriminate against ex-offenders. BTB is essentially the spiritual prescuror to the wage history ban, and it also made a lot of sense in theory. 
 
-In actuality, BTB policies make hiring discrimation **worse**. That was the key finding of a study conducted by researchers from the Univserity of Chicago. They sent out fake job applications to employers before and after the BTB policy went into effect. Some of those applciations had names that sounded white and other black. 
+In actuality, evidence suggests BTB policies make hiring discrimation **worse**. That was the key finding of a [study][2] published by the University of Chicago. They sent out fake job applications to employers before and after the BTB policy went into effect. Some of those applciations had names that sounded white and other black. 
 
 Before the policy went into effect, their results were consistent with what other studies have shown. White applicants to BTB-affected employers received about 7% more call-backs than black applicants. However, after BTB went into effect, white applicants received **45% more call-backs** than black applicants. 
 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.cap='Callback rates by race, only companies affected by policy; Source: Agan and Starr, 2016'}
 
 # add a chart that shows the BTB pre/post effects
 
+tribble(
+  ~race, ~period, ~crime, ~rate,
+  'white', 'pre', 'crime', .088,
+  'white', 'pre', 'no crime' , .138, 
+  'white', 'post', 'NA', .150,
+  'black', 'pre', 'crime', .084,
+  'black', 'pre', 'no crime', .127,
+  'black', 'post', 'NA', .110
+) %>%
+  mutate(xpos = if_else(crime == 'crime', 1, 
+                         if_else(crime == 'no crime', 0, .5))) %>%
+  ggplot(aes(x = fct_relevel(period, levels = c('pre', 'post')),
+             y = rate, 
+             fill = fct_relevel(crime, levels = 'crime', 'no crime', 'NA'))) +
+    geom_bar(stat = 'identity', position = 'dodge') +
+    facet_grid(~(fct_relevel(race, levels = c('white', 'black')))) +
+    geom_text(aes(label = round(rate, 2), hjust = xpos), vjust = -1) +
+    scale_fill_discrete(name = NULL) +
+    scale_x_discrete(name = NULL) +
+    scale_y_continuous(name = 'callback rate', limits = c(NA, .20)) +
+    jtc
 
 ```
 
-These results are stunning. Often studies like these will find statistically significant differences and publish them but the differences in reality are pretty minimal. In this case however, the size of the effect is quite substantial. The policy has a major negative imapct on the exact thing that it is trying to address. 
+The graph above shows call back rates by race from employers who asked about criminal background before the policy went into effect but weren't allowed to after. Before the policy goes into effect, whites without a criminal history get more callbacks than blacks without a criminal history. But after the policy goes into effect, the differences get more drastic. Black applicants get fewer callbacks overall while applicants get more callbacks overall. 
 
-## Well, how do you fix the problem? 
+The authors used some other controls that might signal whether someone had a criminal background such as whether they had a GED rather than a high school diploma or if they had a gap in their employment history. Once you add those in, white applicants get 45% more callbacks than black applicants. 
 
-To be clear, I'm not suggesting the law *won't* work, just that we don't know what impact it will have and that, given the BTB findings, there's a fair chance it has the resverse effect. 
+Part of the challenge here is carefully defining the outcome that a policy is trying to effect. In the case of 'Ban the Box', the ostensible outcome of interest was the employment prospects of those with a criminal history. But those with a criminal history are more likley to be people of color and the evidence is pretty strong that the policy hurts the employment prospets of people of color overall. This is a pretty clear case of unintended consequences.
 
-The spirit of the law is the right one. The Chamber of Commerce made a number of arguments in its challenge to the law which are wrongheaded and don't seem to hold much water. Strangely, their opposition to the law didn't come out until right before the bill was signed. It's intriguing to me though that the Chamber, nor anyone else for that matter, seems to be questioning whether or not the law which actually work. 
+## What would work then? 
+
+To be clear, I'm not suggesting the wage history law *won't* work, just that we don't know what impact it will have and that, given the BTB findings, there's a fair chance it has the resverse effect. 
+
+The spirit of the wage history law is the right one. The Chamber of Commerce made a number of [arguments][3] in its challenge to the law which are wrongheaded and don't seem to hold much water. Strangely, their opposition to the law didn't come out until right before the bill was signed. It's intriguing to me though that the Chamber, nor anyone else for that matter, seems to be questioning whether or not the law which actually work. 
 
 It's one of the problems with this type of policy: by the time someone has something conclusive to say about the effects, the policymakers have moved on to other issues or even positions. And it's not like the evidence from BTB made everybody change their minds; I frequently hear people espouse the benefits of BTB and few are aware of the negative impacts found by the research. 
 
+[1]: http://www.philly.com/philly/news/politics/Kenney-signs-pay-equity-bill.html
+
+[2]: http://bfi.uchicago.edu/sites/default/files/research/2016-17.pdf
+
+[3]: http://www.philly.com/philly/news/politics/city/Chamber-of-Commerce-to-sue-city-over-wage-equity-law.html
 
 [header-image]: http://knowledge.wharton.upenn.edu/wp-content/uploads/2015/06/compensation.jpg
 
