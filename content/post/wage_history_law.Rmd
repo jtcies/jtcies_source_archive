@@ -8,7 +8,6 @@ tags:
   - equity
 thumbnailImage: http://knowledge.wharton.upenn.edu/wp-content/uploads/2015/06/compensation.jpg
 thumbnailImagePosition: 'left'
-
 ---
 
 ```{r setup, include = FALSE}
@@ -75,11 +74,18 @@ Part of the challenge here is carefully defining the outcome that a policy is tr
 
 ## What would work then? 
 
-To be clear, I'm not suggesting the wage history law *won't* work, just that we don't know what impact it will have and that, given the BTB findings, there's a fair chance it has the resverse effect. 
+The hypothesis with Ban the Box is that, absent better evidence, employers will subconsciously use pre-existing notions to make employment decisions; those pre-exisiting notions tend to be biased. One could imagine the same mechanisms impacting those applicants affected by the wage history law: absent hard evidence about what an applicant was paid, employers may assume, for example, that a woman was paid less than a man applying for the same job and offer her less money. There is nothing which prevents this from happening. 
+
+To be clear, I'm not suggesting the wage history law *won't* work, just that we don't know what impact it will have and that, given the BTB findings, there's a fair chance may end up harming those it is intended to help. 
 
 The spirit of the wage history law is the right one. The Chamber of Commerce made a number of [arguments][3] in its challenge to the law which are wrongheaded and don't seem to hold much water. Strangely, their opposition to the law didn't come out until right before the bill was signed. It's intriguing to me though that the Chamber, nor anyone else for that matter, seems to be questioning whether or not the law which actually work. 
 
 It's one of the problems with this type of policy: by the time someone has something conclusive to say about the effects, the policymakers have moved on to other issues or even positions. And it's not like the evidence from BTB made everybody change their minds; I frequently hear people espouse the benefits of BTB and few are aware of the negative impacts found by the research. 
+
+We often hear talk of using research and making evidence-informed decisions. A policy change like this presents an opportunity to study the potential impact of the change. We may find that this policy has huge positive impact on reducing inequity and Philadelphia leads national headlines saying so. 
+
+However, research often already exists that may inform potential policy decisions. It may not always tell us exactly what impact a particular policy will have but it will often give clues about the underlying mechanisms. This is particularly true when trying to effect behaviors in an indirect way such as the two policies discussed here. 
+
 
 [1]: http://www.philly.com/philly/news/politics/Kenney-signs-pay-equity-bill.html
 
