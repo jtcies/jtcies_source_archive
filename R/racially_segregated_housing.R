@@ -10,7 +10,7 @@ library('geojsonio')
 library("spdplyr")
 library('stringr')
 
-source('code/jtc_theme.R')
+source('R/jtc_theme.R')
 
 tract <- read_csv('data/ACS_15_5YR_charc_tract/ACS_15_5YR_S0601_with_ann.csv')
 

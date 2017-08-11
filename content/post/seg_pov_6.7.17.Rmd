@@ -24,7 +24,7 @@ library('knitr')
 
 setwd('../..')
 
-source('code/racially_segregated_housing.R')
+source('R/racially_segregated_housing.R')
 
 ```
 

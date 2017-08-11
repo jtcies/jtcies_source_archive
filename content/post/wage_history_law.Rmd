@@ -17,7 +17,7 @@ knitr::opts_chunk$set(fig.align = 'center', fig.width = 6, fig.asp = 0.618)
 library('tidyverse')
 library('forcats')
 
-source('../../code/jtc_theme.R')
+source('../../R/jtc_theme.R')
 
 ```
 
