@@ -3,4 +3,5 @@
 .RData
 .Ruserdata
 data
+api
 .httr-oauth

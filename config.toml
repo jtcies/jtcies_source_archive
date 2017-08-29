@@ -22,6 +22,8 @@ disqusShortname = "jtcies"
 paginate = 7
 canonifyurls = true
 publishDir = "../jtcies.github.io"
+ignoreFiles = ["\\.Rmd$", "_files$", "_cache$"]
+
 
 [permalinks]
   post = "/:year/:month/:slug/"
@@ -179,5 +181,6 @@ publishDir = "../jtcies.github.io"
   #   url = "/#about"
 
   # Customize copyright value "© 2016 <CUSTOMIZATION>. All Rights Reserved"
-  # [params.footer]
-  #   copyright = "<a href=\"https://github.com/jtcies\">jtcies</a>"
+  [params.footer]
+    copyright = "<a href=\"https://github.com/jtcies\">jtcies</a>"
+  
