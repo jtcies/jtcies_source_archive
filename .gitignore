@@ -5,3 +5,5 @@
 data
 api
 .httr-oauth
+*_files
+*.html
