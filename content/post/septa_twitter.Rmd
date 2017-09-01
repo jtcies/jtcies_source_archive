@@ -1,0 +1,86 @@
+---
+title: "Septa Tweets Delays"
+author: "Joe Ciesielski"
+date: "2017-08-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 8,
+  fig.asp = 0.618,
+  fig.align = 'center'
+  )
+
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(forcats)
+
+source('../../R/jtc_theme.R')
+
+tweets <- read_csv('../../data/twitter/septa_tweets.csv')
+
+```
+
+As someone who is an avid SEPTA rider <code>&mdash;</code> and therefore someone who has frequent first-hand experience with SEPTA delays (including today in fact) <code>&mdash;</code> I was interested to see if there were any patterns to the delays in SEPTA services. And since SEPTA has quite an active Twitter presence, I thought we might be able to learn something about delays from their tweeting behavior. 
+
+Obviously Twitter is an imperfect data source for this analysis at best. For example, as we'll see, SETPA's tweeting behavior has changed over time; that doesn't mean that SEPTA's delays have necessarily changed over time. So we'll have to keep that in mind as we move forward. 
+
+## Tweeting behavior
+
+First let's just take at how SEPTA tweets. SEPTA has a couple general twitter accounts, but here we'll be looking only at the tweets from the accounts that are specific to certain lines. There is a separate account for the Broad Street Line, the Market-Frankford Line, one for each Regional Rail line, one for each trolley, and one for buses. 
+
+```{r}
+
+tweets <- tweets %>% 
+  mutate(
+    type = case_when(
+      line == 'MFL' ~ 'MFL',
+      line == 'BSL' ~ 'BSL',
+      grepl('TRL', line) ~ 'trolley',
+      line == 'Bus' ~ 'bus',
+      TRUE ~ 'RR'
+    ),
+    type = fct_relevel(type, 'MFL', 'BSL', 'bus', 'trolley', 'RR'),
+    days.since.1.1.16 = day(
+      as.period(
+        interval(
+          ymd(20160101),
+          created
+        ), unit = 'days'
+      )
+    ),
+    weeks.since.1.1.16 = floor(days.since.1.1.16 / 7)
+  )
+  
+    
+tweets %>% 
+  filter(weeks.since.1.1.16 >= 0) %>% 
+  group_by(type, weeks.since.1.1.16) %>% 
+  count() %>% 
+  ggplot(aes(x = weeks.since.1.1.16, y = n, colour = type)) +
+    geom_smooth(size = 1.5, span = .25, se = FALSE) +
+    scale_y_continuous(trans = 'log10') +
+    jtc
+
+```
+
+
+```{r}
+# determine which tweets are associated with a delay
+
+tweets$delay <- 0
+
+tweets$delay[grepl('delay', tweets$text, ignore.case = TRUE)] <- 1
+
+# if it says 'residual delay', make the delay a 0 again
+
+tweets$delay[grepl('residual', tweets$text, ignore.case = TRUE)] <- 0
+```
+
