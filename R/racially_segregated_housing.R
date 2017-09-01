@@ -10,15 +10,15 @@ library('geojsonio')
 library("spdplyr")
 library('stringr')
 
-source('R/jtc_theme.R')
+source('../../R/jtc_theme.R')
 
-tract <- read_csv('data/ACS_15_5YR_charc_tract/ACS_15_5YR_S0601_with_ann.csv')
+tract <- read_csv('../../data/ACS_15_5YR_charc_tract/ACS_15_5YR_S0601_with_ann.csv')
 
 tract <- tract[-1,]
 
-tract_shape <- readOGR(dsn = 'data/cb_2016_42_tract_500k')
+tract_shape <- readOGR(dsn = '../../data/cb_2016_42_tract_500k')
 
-tracts_json <- readOGR("data/Census_tracts_2010.geojson", "OGRGeoJSON")
+tracts_json <- readOGR("../../data/Census_tracts_2010.geojson", "OGRGeoJSON")
 
 #--------- Creating Functions --------
 
