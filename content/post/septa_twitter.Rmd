@@ -26,17 +26,8 @@ source('../../R/jtc_theme.R')
 
 tweets <- read_csv('../../data/twitter/septa_tweets.csv')
 
-```
-
-As someone who is an avid SEPTA rider <code>&mdash;</code> and therefore someone who has frequent first-hand experience with SEPTA delays (including today in fact) <code>&mdash;</code> I was interested to see if there were any patterns to the delays in SEPTA services. And since SEPTA has quite an active Twitter presence, I thought we might be able to learn something about delays from their tweeting behavior. 
-
-Obviously Twitter is an imperfect data source for this analysis at best. For example, as we'll see, SETPA's tweeting behavior has changed over time; that doesn't mean that SEPTA's delays have necessarily changed over time. So we'll have to keep that in mind as we move forward. 
-
-## Tweeting behavior
-
-First let's just take at how SEPTA tweets. SEPTA has a couple general twitter accounts, but here we'll be looking only at the tweets from the accounts that are specific to certain lines. There is a separate account for the Broad Street Line, the Market-Frankford Line, one for each Regional Rail line, one for each trolley, and one for buses. 
-
-```{r}
+# setting up some variables we will look at in later
+# filter only tweets since beginning of 2016
 
 tweets <- tweets %>% 
   mutate(
@@ -47,29 +38,161 @@ tweets <- tweets %>%
       line == 'Bus' ~ 'bus',
       TRUE ~ 'RR'
     ),
-    type = fct_relevel(type, 'MFL', 'BSL', 'bus', 'trolley', 'RR'),
-    days.since.1.1.16 = day(
+    type = fct_relevel(type, 'MFL', 'BSL', 'bus', 'RR', 'trolley'),
+    months.since.1.1.16 = month(
       as.period(
         interval(
           ymd(20160101),
           created
-        ), unit = 'days'
+        ), unit = 'months'
       )
     ),
-    weeks.since.1.1.16 = floor(days.since.1.1.16 / 7)
-  )
+    wday = fct_relevel(wday, 
+                       c('Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun')
+                       )
+  ) %>% 
+  filter(months.since.1.1.16 >= 0)
+
+tweets$hour <- as.POSIXct(sprintf('%s %s:%s', Sys.Date(), 
+                       format(tweets$time, '%H'), '00:00'))
+
+```
+
+As someone who is an avid SEPTA rider &mdash; and therefore someone who has frequent first-hand experience with SEPTA delays (including today in fact) &mdash; I was interested to see if there were any patterns to the delays in SEPTA services. And since SEPTA has quite an active Twitter presence, I thought we might be able to learn something about delays from their tweeting behavior. 
+
+Obviously Twitter is an imperfect data source for this analysis at best. For example, as we'll see, SETPA's tweeting behavior has changed over time; that doesn't mean that SEPTA's delays have necessarily changed over time. So we'll have to keep that in mind as we move forward. 
+
+## Tweeting behavior
+
+First let's just take at how SEPTA tweets[^1]. SEPTA has a couple general twitter accounts, but here we'll be looking only at the tweets from the accounts that are specific to certain lines. There is a separate account for the Broad Street Line, the Market-Frankford Line, one for each Regional Rail line, one for each trolley, and one for buses. 
+
+```{r}
+
   
-    
 tweets %>% 
-  filter(weeks.since.1.1.16 >= 0) %>% 
-  group_by(type, weeks.since.1.1.16) %>% 
+  group_by(type, months.since.1.1.16) %>% 
   count() %>% 
-  ggplot(aes(x = weeks.since.1.1.16, y = n, colour = type)) +
-    geom_smooth(size = 1.5, span = .25, se = FALSE) +
-    scale_y_continuous(trans = 'log10') +
+  ggplot(aes(x = months.since.1.1.16, y = n, colour = type)) +
+    geom_line(size = 1.5) +
+    scale_y_continuous() +
+    scale_x_continuous(
+      breaks = c(0, 6, 12, 18), 
+      labels = c('Jan 16', 'Jul 16', 'Jan 17', 'Jul 17')) +
+    labs(
+      title = 'SEPTA tweeting over time',
+      y = 'Tweets per month',
+      x = 'month',
+      colour = NULL
+      ) +
     jtc
 
 ```
+
+Regional Rail lines are by far the most active tweeters and their activity has increased substantially in the last year or so. However, Regional Rail it also comprises 14 different accounts, whereas trolleys have eight accounts, and each of the other lines just have one. Here's that same chart without the regional rail: 
+
+```{r}
+# fix the levels on these charts
+
+tweets %>% 
+  filter(type != 'RR') %>% 
+  group_by(type, months.since.1.1.16) %>% 
+  count() %>% 
+  ggplot(aes(x = months.since.1.1.16, y = n, colour = type)) +
+    geom_line(size = 1.5) +
+    scale_y_continuous() +
+    scale_x_continuous(
+      breaks = c(0, 6, 12, 18), 
+      labels = c('Jan 16', 'Jul 16', 'Jan 17', 'Jul 17')) +
+    labs(
+      title = 'SEPTA tweeting over time',
+      y = 'Tweets per month',
+      x = 'month',
+      colour = NULL
+      ) +
+    jtc
+
+```
+
+Other than regional rail, the amount of tweets per month has been pretty consistent since January 2016. Let's take a look at the day of the week and time of day of those tweets. 
+
+```{r}
+
+tweets %>% 
+  group_by(type, wday) %>% 
+  summarise(total = n()) %>% 
+  mutate(avg = total / sum(total)) %>% 
+  ggplot(aes(x = wday, y = avg, colour = type, group = type)) +
+    geom_line(size = 1.5) +
+    labs(
+      title = 'proportion of tweets sent each day of the week',
+      x = 'day of the week',
+      y = 'percent of tweets by line',
+      fill = NULL
+    ) +
+    jtc
+
+```
+
+Not surprisingly, most lines send the fewest tweets on the weekend. There is the dip that happens on Thursdays. But the thin that really stands out is that @SEPTA_BUS line sends a ton on Saturdays. I wonder why that is? Let's look at The time of day tweets are sent.
+
+```{r}
+
+tweets %>% 
+  group_by(type, hour) %>% 
+  summarise(total = n()) %>% 
+  mutate(pct = total / sum(total)) %>% 
+  ggplot(aes(x = hour, y = pct, colour = type, group = type)) +
+    geom_line(size = 1.5) +
+    scale_x_datetime(date_breaks = '2 hours', date_labels = '%H') +
+    labs(
+      y = 'percent of tweets by line',
+      x = 'time of day',
+      colour = NULL,
+      title = 'proporation of tweets sent each hour'
+    ) +
+    jtc
+
+
+```
+
+Again the bus line breaks the pattern of the other times. There is a spike at 1 AM and another at 6-7AM. Regional Rail dips duing the middle of the work day but has peaks during the morning and evening rush hours whereas the MFL, BSL, and trolley lines follow a more consisent pattern. 
+
+I wonder what would happen if we looked at just the bus line comparing tweets by time of day and whether it is during the weekday or the weekend.
+
+```{r}
+
+tweets %>% 
+  filter(type == 'bus') %>% 
+  mutate(
+    weekend = case_when(
+      wday == 'Sat' | wday == 'Sun' ~ 1,
+      TRUE                          ~ 0
+    )
+  ) %>% 
+  group_by(weekend, hour) %>% 
+  summarise(total = n()) %>% 
+  mutate(pct = total / sum(total)) %>% 
+  ggplot(aes(x = hour, y = pct, colour = factor(weekend), group = factor(weekend))) +
+    geom_line(size = 1.5) +
+    scale_x_datetime(date_breaks = '2 hours', date_labels = '%H') +
+    scale_colour_discrete(labels = c('weekday', 'weekend')) +
+    labs(
+      y = 'percent of tweets',
+      x = 'time of day',
+      colour = NULL,
+      title = 'proporation of tweets sent each hour - @SEPTA_BUS only'
+    ) +
+    jtc
+  
+
+
+```
+
+So the early morning tweets for the bus line come on the weekend and the bus actually tweets *more* during the middle of the work day following the opposite pattern of the Regional Rail. 
+
+## When are the delays?
+
+Now that we've looked at some of the overall tweeting patterns, let's take a look at patterns related to delays. 
 
 
 ```{r}
@@ -84,3 +207,4 @@ tweets$delay[grepl('delay', tweets$text, ignore.case = TRUE)] <- 1
 tweets$delay[grepl('residual', tweets$text, ignore.case = TRUE)] <- 0
 ```
 
+[^1]: Here we'll only look at tweets since the beginning of 2016. 
