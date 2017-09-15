@@ -12,7 +12,7 @@ jtc_theme <- define_palette(swatch = jtc_colors,
     text = c("#4f4f4f", "#6b7a8f"),
     background = "#f4f4f4")
 
-ggthemr(jtc_theme, layout = 'scientific', text_size = 14)
+ggthemr(jtc_theme, layout = 'clear', text_size = 14)
 
 jtc <- theme(text=element_text(family = 'Open Sans'),
              axis.title.y = element_text(hjust = 1, vjust = 2),

@@ -3,6 +3,7 @@ title: "Septa Tweets Delays"
 author: "Joe Ciesielski"
 date: "2017-08-31"
 output: html_document
+draft: true
 ---
 
 ```{r setup, include=FALSE}
@@ -21,6 +22,7 @@ library(ggplot2)
 library(dplyr)
 library(lubridate)
 library(forcats)
+library(huxtable)
 
 source('../../R/jtc_theme.R')
 
@@ -38,7 +40,7 @@ tweets <- tweets %>%
       line == 'Bus' ~ 'bus',
       TRUE ~ 'RR'
     ),
-    type = fct_relevel(type, 'MFL', 'BSL', 'bus', 'RR', 'trolley'),
+    type = fct_relevel(type, 'MFL', 'BSL', 'bus', 'trolley', 'RR'),
     months.since.1.1.16 = month(
       as.period(
         interval(
@@ -148,7 +150,7 @@ tweets %>%
       y = 'percent of tweets by line',
       x = 'time of day',
       colour = NULL,
-      title = 'proporation of tweets sent each hour'
+      title = 'proportion of tweets sent each hour'
     ) +
     jtc
 
@@ -192,7 +194,7 @@ So the early morning tweets for the bus line come on the weekend and the bus act
 
 ## When are the delays?
 
-Now that we've looked at some of the overall tweeting patterns, let's take a look at patterns related to delays. 
+Now that we've looked at some of the overall tweeting patterns, let's take a look at patterns related to delays. We'll define delays by any tweets that mention the word "delay." However, often SETPA will let folks now that there are "residual delays" after an incident has occured. These almost always come after a delay tweet, so we wont' count them as delays. 
 
 
 ```{r}
@@ -206,5 +208,43 @@ tweets$delay[grepl('delay', tweets$text, ignore.case = TRUE)] <- 1
 
 tweets$delay[grepl('residual', tweets$text, ignore.case = TRUE)] <- 0
 ```
+
+First let's take a look at the proportion of tweets that are delays.
+
+```{r}
+
+tweets %>% 
+  group_by(type, delay) %>%
+  summarise(count = n()) %>% 
+  mutate(pct = count / sum(count)) %>% 
+  filter(delay == 1) %>% 
+  select(
+    `line` = type, 
+    `total delays` = count,
+    `proportion of tweets that are delays` = pct
+  ) %>% 
+  as_hux() %>% 
+  add_colnames() %>% 
+  set_align(everywhere, 2:3, 'right') %>% 
+  set_number_format(everywhere, 2, 0) %>% 
+  set_number_format(everywhere, 3, 2) %>% 
+  theme_article()
+
+```
+
+A full third of trolley and BSL tweets are about delays, but less than 10% of bus tweets are about delays. How about the timing of delays. 
+
+```{r, fig.width = 12}
+
+tweets %>% 
+  ggplot(aes(x = hour, fill = factor(delay))) +
+    geom_bar() +
+    scale_x_datetime(date_breaks = '2 hours', date_labels = '%H') +
+    facet_wrap(~type, scales = 'free_y') +
+    jtc
+
+```
+
+
 
 [^1]: Here we'll only look at tweets since the beginning of 2016. 
