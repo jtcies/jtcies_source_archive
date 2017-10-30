@@ -1,0 +1,174 @@
+# this started as a script to determine if corners mattered
+# it became pretty apparent quickl that they didn't
+# that they were mostly a function of shots taken
+# and that they didn't lead to goals
+# so I transitioned it to try out a monte carlo simulation
+# to see if we could determine how 
+
+library(dplyr)
+library(readr)
+library(lubridate)
+library(ggplot2)
+library(GGally)
+library(lubridate)
+library(tidyr)
+
+# ----- functions -----
+
+season_assign <- function(date) {
+  # assings the season based on the date
+  require(lubridate)
+  require(dplyr)
+  season <- ifelse(month(date) >= 8,
+                   as.character(year(date) + 1),
+                   as.character(year(date)))
+  season
+}
+  
+read_soccer <- function(path, contains) {
+  # reads in the different tables
+  require(readr)
+  require(dplyr)
+  dat <- list.files(path)
+  dat <- paste0(path, "/", dat[grepl(contains, dat)])
+  tables <- lapply(dat, read_csv)
+  bind_rows(tables)
+  
+}
+
+rmse <- function(error) {
+  sqrt(mean(error^2))
+}
+
+
+# ----- read data --- 
+
+s <- read_soccer(path = "data/soccer", contains = "E")
+names(s) <- tolower(names(s))
+
+
+# ----- clean ----- 
+s$date <- dmy(s$date)
+
+# create a data frame where each row is one team in one game
+# and the columns are season, team name, goals scored, goals allowed,
+# result, yellows, reds, cornders, shots, and shots on target
+
+s <- s %>% 
+  mutate(game = row_number(),
+         season = season_assign(date))
+
+home <- s %>% 
+  select(
+    date,
+    season,
+    game,
+    team = hometeam,
+    opp = awayteam,
+    goals = fthg,
+    allowed = ftag,
+    ht.goal = hthg,
+    ht.allowed = htag,
+    shots = hs,
+    shots.allow = as,
+    st = hst,
+    st.allow = ast,
+    fouls.conceded = hf,
+    fouls.earned = af,
+    corners = hc,
+    corners.allow = ac,
+    yc = hy,
+    yc.earned = ay,
+    red = hr,
+    red.eared = ar
+  )
+
+away <- s %>% 
+  select(
+    date,
+    season,
+    game,
+    team = awayteam,
+    opp = hometeam,
+    goals = ftag,
+    allowed = fthg,
+    ht.goal = htag,
+    ht.allowed = hthg,
+    shots = as,
+    shots.allow = hs,
+    st = ast,
+    st.allow = hst,
+    fouls.conceded = af,
+    fouls.earned = hf,
+    corners = ac,
+    corners.allow = hc,
+    yc = ay,
+    yc.earned = hy,
+    red = ar,
+    red.eared = hr
+  )
+
+games <- bind_rows(home, away) %>% 
+  arrange(game) %>% 
+  mutate(
+    result = case_when(
+      goals > allowed ~ "win",
+      allowed > goals ~ "loss",
+      goals == allowed ~ "draw",
+      TRUE ~ NA_character_
+    ),
+    points = recode(result,
+                           win = 3,
+                           draw = 1,
+                           loss = 0),
+    season = factor(season)
+    ) %>% 
+  filter(!is.na(date)) 
+
+
+# split out test and train
+
+set.seed(7)
+
+games$sample <- sample(c(0,1),
+                       size = nrow(games),
+                       prob = c(4, 1),
+                       replace = TRUE)
+
+test <- filter(games, sample == 1) %>% 
+  select(-sample)
+
+train <- filter(games, sample == 0) %>% 
+  select(-sample) %>% 
+  mutate(sot = st - shots)
+
+# ----- visualize -----
+# let's see if any teams only show up a few times
+
+# see the distribution of goals by team
+ggplot(train, aes(x = goals)) +
+  geom_histogram(binwidth = 1) +
+  facet_wrap(~team)
+
+# goals allowed
+ggplot(train, aes(x = allowed)) +
+  geom_histogram(binwidth = 1) +
+  facet_wrap(~team)
+
+train <- train %>% 
+  mutate(dif = goals - allowed)
+
+ggplot(train, aes(x = dif)) +
+  geom_histogram(binwidth = 1) +
+  facet_wrap(~team)
+
+# these comes from a poisson distribution
+# so we need to incorporate that into our model
+
+# ---- preproccess for modeling -----
+# figure out the distribution of goals and allowed
+
+teams <- train %>% 
+  group_by(team) %>% 
+  summarise(dif.mean = mean(dif),
+            dif.sd = sd(dif))
