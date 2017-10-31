@@ -12,6 +12,7 @@ library(ggplot2)
 library(GGally)
 library(lubridate)
 library(tidyr)
+library(purrr)
 
 # ----- functions -----
 
@@ -168,7 +169,54 @@ ggplot(train, aes(x = dif)) +
 # ---- preproccess for modeling -----
 # figure out the distribution of goals and allowed
 
-teams <- train %>% 
-  group_by(team) %>% 
-  summarise(dif.mean = mean(dif),
-            dif.sd = sd(dif))
+# monte carlo simulation
+
+run_simulation <- function(team, opp) {
+  
+}
+
+run_team_simulation <- function(data, 
+                                team.name,
+                                opp.name,
+                                n.draws = 100) {
+  
+  team <- filter(data, team == team.name)
+  
+  team.dif <- sample(team$dif, n.draws, replace = TRUE)
+  
+  opp <- filter(data, team == opp.name)
+  
+  opp.dif <- sample(opp$dif, n.draws, replace = TRUE)
+  
+  dif <- data.frame(team.dif, opp.dif) %>% 
+    mutate(
+      difference = team.dif - opp.dif,
+      result = case_when(
+        difference >=  1 ~ "win",
+        difference <= -1 ~ "loss",
+        TRUE             ~ "draw"
+      )
+    )
+  
+  results <- dif %>% 
+    group_by(result) %>% 
+    summarise(n = n()) %>% 
+    mutate(pct = n / sum(n)) %>% 
+    select(-n) %>% 
+    spread(result, pct)
+  
+  freq <- function(cols) {
+    x <- names(which.max(cols))
+    x
+  }
+    
+  results$sim.result <- freq(results[1:3])
+  
+  results
+}
+
+sim.data <- expand.grid(unique(train$team), unique(train$team)) %>% 
+  rename(team = Var1,
+         opp = Var2)
+
+
