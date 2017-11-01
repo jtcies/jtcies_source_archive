@@ -171,22 +171,17 @@ ggplot(train, aes(x = dif)) +
 
 # monte carlo simulation
 
-run_simulation <- function(team, opp) {
-  
-}
-
-run_team_simulation <- function(data, 
-                                team.name,
+run_team_simulation <- function(team.name,
                                 opp.name,
-                                n.draws = 100) {
+                                n.draws = 1000) {
   
-  team <- filter(data, team == team.name)
+  team.of.int <- filter(train, team == team.name)
   
-  team.dif <- sample(team$dif, n.draws, replace = TRUE)
+  team.dif <- sample(team.of.int$dif, n.draws, replace = TRUE)
   
-  opp <- filter(data, team == opp.name)
+  opp.of.int <- filter(train, team == opp.name)
   
-  opp.dif <- sample(opp$dif, n.draws, replace = TRUE)
+  opp.dif <- sample(opp.of.int$dif, n.draws, replace = TRUE)
   
   dif <- data.frame(team.dif, opp.dif) %>% 
     mutate(
@@ -205,18 +200,47 @@ run_team_simulation <- function(data,
     select(-n) %>% 
     spread(result, pct)
   
-  freq <- function(cols) {
-    x <- names(which.max(cols))
-    x
-  }
-    
-  results$sim.result <- freq(results[1:3])
-  
   results
 }
 
-sim.data <- expand.grid(unique(train$team), unique(train$team)) %>% 
-  rename(team = Var1,
-         opp = Var2)
+teams.sim <- train$team
+opps.sim <- train$opp
 
+set.seed(7)
 
+# run the simulation
+sim.results <- map2(teams.sim, 
+                    opps.sim, 
+                    run_team_simulation) %>% 
+  bind_rows()
+
+# now we can sample from the win / draw / loss columsn based on percentages
+# to get a predicted result
+# them comapre how frequntly this is off from the true result
+
+pred <- function(draw.pct, loss.pct, win.pct) {
+  
+  possible.results <- c("draw", "loss", "win")
+  prob.results <- c(draw.pct, loss.pct, win.pct)
+  
+  pred.result <- sample(possible.results, size = 1, prob = prob.results)
+  
+  pred.result
+  
+}
+
+args <- list(draw.pct = sim.results$draw, 
+             loss.pct = sim.results$loss,
+             win.pct = sim.results$win)
+
+sim.results$pred.result <- pmap(args, pred) %>% 
+  unlist()
+
+train <- bind_cols(train, sim.results)
+
+prop.table(table(train$result, train$pred.result), 1)
+
+# one thing that seems clear is that I'm really underestimating the amount of
+# draws. I might have to bump up the probabilities for those in prediction
+# in some way or use a model to predict the result based on those
+# probabilities plus a few other variables
