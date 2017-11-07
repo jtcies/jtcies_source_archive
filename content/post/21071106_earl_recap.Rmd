@@ -1,0 +1,25 @@
+---
+title: "EARL Conference 2017 Presentation"
+author: "Joe Ciesielski"
+date: "11/6/2017"
+draft: yes
+output: 
+  html_document:
+    self-containted: ture
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE)
+
+
+```
+
+I recently presented at EARL Conference about data use in the nonprofit sector. There was a pretty positive response, with other organizations in all different types of sectors. So I figured I could share the slides on here for those that weren't at the conference. 
+
+The talk centered around the idea that in the nonprofit world we tend to think of data use as primarily about counting [^1]. We count participants in programs, or how many kids achieved a particular benchmark, or how many passed a test. And we might calculate a percentage which really comes down to counting a small group and dividing it by a larger group. Test scores are this way: we count how many passed and divde it by the total that took the test. If that percentage looks good, we are praised. If it looks bad, we get dinged. 
+
+
+
+
+[^1]: After my talk, I saw this tweet. So maybe this idea rings true in other sectors as well. Or maybe I'm completely off-base. Who knows ...

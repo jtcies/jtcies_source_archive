@@ -244,3 +244,4 @@ prop.table(table(train$result, train$pred.result), 1)
 # draws. I might have to bump up the probabilities for those in prediction
 # in some way or use a model to predict the result based on those
 # probabilities plus a few other variables
+
